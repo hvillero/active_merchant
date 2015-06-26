@@ -263,6 +263,11 @@ garanti:
   merchant_id: 600218
   password: "123qweASD"
 
+# Working credentials, no need to replace
+global_one:
+  some_credential: SOMECREDENTIAL
+  another_credential: ANOTHERCREDENTIAL
+
 global_transport:
   global_user_name: "USERNAME"
   global_password: "PASSWORD"
