@@ -23,27 +23,26 @@ module ActiveMerchant #:nodoc:
 
       def purchase(money, payment, options={})
         purdatetime = Time.now.strftime('%d-%m-%Y:%T:%L')
-        purhash = Digest::MD5.hexdigest('6491002'+options[:order_id]+'CAD'+money.to_s+purdatetime+'secret')
-        # $stderr.puts purhash
+        secret = 'SandboxSecret001'
+        purhash = Digest::MD5.hexdigest('36001'+options[:order_id]+'CAD'+money.to_s+purdatetime+secret)
         request = build_xml_request do |xml|
           xml.PAYMENT do
             xml.ORDERID options[:order_id]
-            xml.TERMINALID '6491002'
+            xml.TERMINALID '36001'
             xml.AMOUNT money
             xml.DATETIME purdatetime
             xml.CARDNUMBER payment.number
             xml.CARDTYPE payment.brand.upcase
-            xml.CARDEXPIRY '0807'
+            xml.CARDEXPIRY '0816'
             xml.CARDHOLDERNAME payment.name
             xml.HASH purhash
             xml.CURRENCY 'CAD'
-            xml.TERMINALTYPE 2
+            xml.TERMINALTYPE 1
             xml.TRANSACTIONTYPE 7
             xml.CVV payment.verification_value
           end
         end
-        ttt = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><PAYMENT><ORDERID>115010922465</ORDERID><TERMINALID>6491002</TERMINALID><AMOUNT>100</AMOUNT><DATETIME>30-06-2015:10:21:32:960</DATETIME><CARDNUMBER>4444333322221111</CARDNUMBER><CARDTYPE>VISA</CARDTYPE><CARDEXPIRY>0807</CARDEXPIRY><CARDHOLDERNAME>Longbob Longsen</CARDHOLDERNAME><HASH>b48b569f6e1e2419811ea900b62dfad7</HASH><CURRENCY>CAD</CURRENCY><TERMINALTYPE>2</TERMINALTYPE><TRANSACTIONTYPE>7</TRANSACTIONTYPE><CVV>123</CVV></PAYMENT>"
-        commit(ttt)
+        commit(request)
       end
 
       def authorize(money, payment, options={})
@@ -150,7 +149,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def post_data(xml)
-        "load=#{xml}"
+        "#{xml}"
       end
 
       def error_code_from(response)
