@@ -24,7 +24,8 @@ module ActiveMerchant #:nodoc:
       def purchase(money, payment, options={})
         purdatetime = Time.now.strftime('%d-%m-%Y:%T:%L')
         ccexpmonth = payment.month < 10 ? "0#{payment.month}" : "#{payment.month}"
-        ccexp = "#{ccexpmonth}#{payment.year}"
+        ccexpyear = payment.expiry_date.year.to_s.length > 2 ? payment.expiry_date.year.to_s.slice(2,3) : payment.expiry_date.year.to_s
+        ccexp = "#{ccexpmonth}#{ccexpyear}"
         purhash = Digest::MD5.hexdigest(options[:terminal_id]+options[:order_id]+options[:currency]+money.to_s+purdatetime+options[:secret])
         request = build_xml_request do |xml|
           xml.PAYMENT do

@@ -5,7 +5,7 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
     @gateway = GlobalOneGateway.new(fixtures(:global_one))
 
     @amount = 10
-    @credit_card = credit_card('4444333322221111', month: '11', year: '16')
+    @credit_card = credit_card('4111111111111111', month: '08', year: '2017', brand: 'visa', verification_value: '214')
 
     @declined_card = credit_card('4000300011112220')
     @options = {
@@ -19,6 +19,7 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
   end
 
   def test_successful_purchase
+    $stderr.puts "#{@credit_card.validate()}  ===>>>> validation Errors   <<<<<<<<<<<<======"
     response = @gateway.purchase(@amount, @credit_card, @options)
     assert_success response
     assert_equal 'REPLACE WITH SUCCESS MESSAGE', response.message
