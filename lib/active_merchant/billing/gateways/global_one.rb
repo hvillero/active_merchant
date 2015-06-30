@@ -125,7 +125,7 @@ module ActiveMerchant #:nodoc:
         # )
         url = (test? ? test_url : live_url)
         headers = {
-          'Content-Type' => 'application/x-www-form-urlencoded;charset=UTF-8'
+          'Content-Type' => 'text/xml;charset=UTF-8'
         }
 
         response = parse(ssl_post(url, post_data(xml), headers))
