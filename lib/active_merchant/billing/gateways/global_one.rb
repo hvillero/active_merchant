@@ -23,26 +23,26 @@ module ActiveMerchant #:nodoc:
 
       def purchase(money, payment, options={})
         purdatetime = Time.now.strftime('%d-%m-%Y:%T:%L')
-        purhash = Digest::MD5.hexdigest('33002'+options[:order_id]+'CAD'+money.to_s+purdatetime+'secret')
+        purhash = Digest::MD5.hexdigest('6491002'+options[:order_id]+'CAD'+money.to_s+purdatetime+'secret')
         # $stderr.puts purhash
         request = build_xml_request do |xml|
           xml.PAYMENT do
             xml.ORDERID options[:order_id]
-            xml.TERMINALID '33002'
+            xml.TERMINALID '6491002'
             xml.AMOUNT money
             xml.DATETIME purdatetime
             xml.CARDNUMBER payment.number
             xml.CARDTYPE payment.brand.upcase
-            xml.CARDEXPIRY '0816'
+            xml.CARDEXPIRY '0807'
             xml.CARDHOLDERNAME payment.name
             xml.HASH purhash
-            xml.CURRENCY 'CDN'
+            xml.CURRENCY 'CAD'
             xml.TERMINALTYPE 2
             xml.TRANSACTIONTYPE 7
             xml.CVV payment.verification_value
           end
         end
-        commit(request)
+        commit(request.xpath('//text()[not(normalize-space())]').remove)
       end
 
       def authorize(money, payment, options={})
@@ -125,7 +125,7 @@ module ActiveMerchant #:nodoc:
         # )
         url = (test? ? test_url : live_url)
         headers = {
-          'Content-Type' => 'application/x-www-form-urlencoded;charset=UTF-8'
+          'Content-Type' => 'application/xml;charset=UTF-8'
         }
 
         response = parse(ssl_post(url, post_data(xml), headers))
