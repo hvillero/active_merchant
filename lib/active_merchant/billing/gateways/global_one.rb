@@ -5,7 +5,7 @@ module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     class GlobalOneGateway < Gateway
       self.test_url = 'https://testpayments.globalone.me/merchant/xmlpayment'
-      # self.live_url = 'https://example.com/live'
+      self.live_url = 'https://payments.globalone.me/merchant/xmlpayment'
 
       self.supported_countries = ['CA', 'US']
       self.default_currency = 'CAD'
@@ -23,20 +23,21 @@ module ActiveMerchant #:nodoc:
 
       def purchase(money, payment, options={})
         purdatetime = Time.now.strftime('%d-%m-%Y:%T:%L')
-        secret = 'SandboxSecret001'
-        purhash = Digest::MD5.hexdigest('36001'+options[:order_id]+'CAD'+money.to_s+purdatetime+secret)
+        ccexpmonth = payment.month < 10 ? "0#{payment.month}" : "#{payment.month}"
+        ccexp = "#{ccexpmonth}#{payment.year}"
+        purhash = Digest::MD5.hexdigest(options[:terminal_id]+options[:order_id]+options[:currency]+money.to_s+purdatetime+options[:secret])
         request = build_xml_request do |xml|
           xml.PAYMENT do
             xml.ORDERID options[:order_id]
-            xml.TERMINALID '36001'
+            xml.TERMINALID options[:terminal_id]
             xml.AMOUNT money
             xml.DATETIME purdatetime
             xml.CARDNUMBER payment.number
             xml.CARDTYPE payment.brand.upcase
-            xml.CARDEXPIRY '0816'
+            xml.CARDEXPIRY ccexp
             xml.CARDHOLDERNAME payment.name
             xml.HASH purhash
-            xml.CURRENCY 'CAD'
+            xml.CURRENCY options[:currency]
             xml.TERMINALTYPE 1
             xml.TRANSACTIONTYPE 7
             xml.CVV payment.verification_value

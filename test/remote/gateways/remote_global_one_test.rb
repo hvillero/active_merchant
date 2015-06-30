@@ -4,14 +4,17 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
   def setup
     @gateway = GlobalOneGateway.new(fixtures(:global_one))
 
-    @amount = 100
-    @credit_card = credit_card('4444333322221111', month: '08', year: '16')
+    @amount = 10
+    @credit_card = credit_card('4444333322221111', month: '11', year: '16')
 
     @declined_card = credit_card('4000300011112220')
     @options = {
-      order_id: '115010922465',
+      order_id: '832940573495',
+      terminal_id: '36001',
+      currency: 'CAD',
       billing_address: address,
-      description: 'Store Purchase'
+      description: 'Store Purchase',
+      secret: 'SandboxSecret001'
     }
   end
 
