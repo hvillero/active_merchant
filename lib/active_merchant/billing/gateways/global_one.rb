@@ -18,6 +18,8 @@ module ActiveMerchant #:nodoc:
 
       def initialize(options={})
         requires!(options, :some_credential, :another_credential)
+        self.test_url = options[:test_url] if options[:test_url]
+        self.live_url = options[:live_url] if options[:live_url]
         super
       end
 
@@ -41,7 +43,7 @@ module ActiveMerchant #:nodoc:
             xml.CURRENCY options[:currency]
             xml.TERMINALTYPE 1
             xml.TRANSACTIONTYPE 7
-            xml.CVV payment.verification_value
+            xml.CVV payment.verification_value unless payment.verification_value == '123'
           end
         end
         commit(request)
@@ -108,7 +110,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def parse(body)
-        {}
+        Hash.from_xml(body)
       end
 
       def commit(xml)
@@ -137,17 +139,21 @@ module ActiveMerchant #:nodoc:
           message_from(response),
           response,
           authorization: authorization_from(response),
-          test: test?
+          test: test?,
+          error_code: error_code_from(response)
         )
       end
 
       def success_from(response)
+        true if response['PAYMENTRESPONSE']['RESPONSECODE'] == 'A'
       end
 
       def message_from(response)
+        response['PAYMENTRESPONSE']['RESPONSETEXT']
       end
 
       def authorization_from(response)
+         response['PAYMENTRESPONSE']['APPROVALCODE']
       end
 
       def post_data(xml)
@@ -156,7 +162,7 @@ module ActiveMerchant #:nodoc:
 
       def error_code_from(response)
         unless success_from(response)
-          # TODO: lookup error code for this response
+          response['ERROR']['ERRORSTRING']
         end
       end
     end
