@@ -64,7 +64,19 @@ module ActiveMerchant #:nodoc:
       end
 
       def refund(money, authorization, options={})
-        commit('refund', post)
+        purdatetime = Time.now.strftime('%d-%m-%Y:%T:%L')
+        purhash = Digest::MD5.hexdigest(options[:terminal_id]+authorization+money.to_s+purdatetime+options[:secret])
+        request = build_xml_request do |xml|
+          xml.REFUND do
+            xml.UNIQUEREF authorization
+            xml.TERMINALID options[:terminal_id]
+            xml.AMOUNT money
+            xml.DATETIME purdatetime
+            xml.OPERATOR options[:operator]
+            xml.REASON options[:reason]
+          end
+        end
+        commit(request)
       end
 
       def void(authorization, options={})

@@ -14,7 +14,10 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
       currency: 'CAD',
       billing_address: address,
       description: 'Store Purchase',
-      secret: 'SandboxSecret001'
+      secret: 'SandboxSecret001',
+      operator: 'Test Operator',
+      reason: 'Faulty goods',
+      test_url: true
     }
   end
 
@@ -78,7 +81,7 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
 
     assert refund = @gateway.refund(@amount, purchase.authorization)
     assert_success refund
-    assert_equal 'REPLACE WITH SUCCESSFUL REFUND MESSAGE', response.message
+    assert_equal 'SUCCESS', response.message
   end
 
   def test_partial_refund
