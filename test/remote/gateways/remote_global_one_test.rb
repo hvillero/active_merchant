@@ -10,11 +10,11 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
     @declined_card = credit_card('4000300011112220')
     @options = {
       order_id: SecureRandom.random_number.to_s.slice(2..13),
-      terminal_id: '36001',
+      terminal_id: '36002',
       currency: 'CAD',
       billing_address: address,
       description: 'Store Purchase',
-      secret: 'SandboxSecret001',
+      secret: 'SandboxSecret002',
       operator: 'Test Operator',
       reason: 'Faulty goods',
       test_url: true
