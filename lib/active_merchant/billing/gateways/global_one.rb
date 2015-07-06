@@ -28,7 +28,7 @@ module ActiveMerchant #:nodoc:
         ccexpmonth = payment.month < 10 ? "0#{payment.month}" : "#{payment.month}"
         ccexpyear = payment.expiry_date.year.to_s.length > 2 ? payment.expiry_date.year.to_s.slice(2,3) : payment.expiry_date.year.to_s
         ccexp = "#{ccexpmonth}#{ccexpyear}"
-        purhash = Digest::MD5.hexdigest(options[:terminal_id]+options[:order_id]+options[:currency]+money.to_s+purdatetime+options[:secret])
+        purhash = Digest::MD5.hexdigest(options[:terminal_id]+options[:order_id]+money.to_s+purdatetime+options[:secret])
         request = build_xml_request do |xml|
           xml.PAYMENT do
             xml.ORDERID options[:order_id]
@@ -46,7 +46,7 @@ module ActiveMerchant #:nodoc:
             xml.CVV payment.verification_value unless payment.verification_value == '123'
           end
         end
-        commit(request)
+        commit(request, 'PAYMENTRESPONSE')
       end
 
       def authorize(money, payment, options={})
@@ -65,18 +65,23 @@ module ActiveMerchant #:nodoc:
 
       def refund(money, authorization, options={})
         purdatetime = Time.now.strftime('%d-%m-%Y:%T:%L')
-        purhash = Digest::MD5.hexdigest(options[:terminal_id]+authorization+money.to_s+purdatetime+options[:secret])
+        logger.debug(options.to_s + "<<<<<<<<<<<")
+        logger.debug(authorization + "<<<<<<<<<<<")
+        logger.debug(money.to_s + "<<<<<<<<<<<")
+        logger.debug(purdatetime + "<<<<<<<<<<<")
+        purhash = Digest::MD5.hexdigest(options[:terminal_id]+authorization.to_s+money.to_s+purdatetime+options[:secret])
         request = build_xml_request do |xml|
           xml.REFUND do
             xml.UNIQUEREF authorization
             xml.TERMINALID options[:terminal_id]
             xml.AMOUNT money
             xml.DATETIME purdatetime
+            xml.HASH purhash
             xml.OPERATOR options[:operator]
             xml.REASON options[:reason]
           end
         end
-        commit(request)
+        commit(request, 'REFUNDRESPONSE')
       end
 
       def void(authorization, options={})
@@ -125,20 +130,7 @@ module ActiveMerchant #:nodoc:
         Hash.from_xml(body)
       end
 
-      def commit(xml)
-        # url = (test? ? test_url : live_url)
-        # response = parse(ssl_post(url, post_data(action, parameters)))
-
-        # Response.new(
-        #   success_from(response),
-        #   message_from(response),
-        #   response,
-        #   authorization: authorization_from(response),
-        #   avs_result: AVSResult.new(code: response["some_avs_response_key"]),
-        #   cvv_result: CVVResult.new(response["some_cvv_response_key"]),
-        #   test: test?,
-        #   error_code: error_code_from(response)
-        # )
+      def commit(xml, response_type='PAYMENTRESPONSE')
         url = (test? ? test_url : live_url)
         headers = {
           'Content-Type' => 'application/xml;charset=UTF-8'
@@ -147,33 +139,33 @@ module ActiveMerchant #:nodoc:
         response = parse(ssl_post(url, post_data(xml), headers))
 
         Response.new(
-          success_from(response),
-          message_from(response),
+          success_from(response, response_type),
+          message_from(response, response_type),
           response,
-          authorization: authorization_from(response),
+          authorization: authorization_from(response, response_type),
           test: test?,
-          error_code: error_code_from(response)
+          error_code: error_code_from(response, response_type)
         )
       end
 
-      def success_from(response)
-        true if response['PAYMENTRESPONSE']['RESPONSECODE'] == 'A'
+      def success_from(response, response_type)
+        true if response[response_type]['RESPONSECODE'] == 'A'
       end
 
-      def message_from(response)
-        response['PAYMENTRESPONSE']['RESPONSETEXT']
+      def message_from(response, response_type)
+        response[response_type]['RESPONSETEXT']
       end
 
-      def authorization_from(response)
-         response['PAYMENTRESPONSE']['APPROVALCODE']
+      def authorization_from(response, response_type)
+         response[response_type]['APPROVALCODE']
       end
 
       def post_data(xml)
         "#{xml}"
       end
 
-      def error_code_from(response)
-        unless success_from(response)
+      def error_code_from(response, response_type)
+        unless success_from(response, response_type)
           response['ERROR']['ERRORSTRING']
         end
       end

@@ -5,16 +5,16 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
     @gateway = GlobalOneGateway.new(fixtures(:global_one))
 
     @amount = 10
-    @credit_card = credit_card('4444333322221111', month: '08', year: '2017', brand: 'visa')
+    @credit_card = credit_card('4444333322221111', month: '08', year: '2017', brand: 'visa',verification_value: '123')
 
     @declined_card = credit_card('4000300011112220')
     @options = {
       order_id: SecureRandom.random_number.to_s.slice(2..13),
-      terminal_id: '36001',
+      terminal_id: '33002',
       currency: 'CAD',
       billing_address: address,
       description: 'Store Purchase',
-      secret: 'SandboxSecret001',
+      secret: 'SandboxSecret002',
       operator: 'Test Operator',
       reason: 'Faulty goods',
       test_url: true
@@ -78,10 +78,10 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
   def test_successful_refund
     purchase = @gateway.purchase(@amount, @credit_card, @options)
     assert_success purchase
-
-    assert refund = @gateway.refund(@amount, purchase.authorization)
+    $stderr.puts(purchase.params['PAYMENTRESPONSE']['UNIQUEREF'].inspect)
+    assert refund = @gateway.refund(@amount, purchase.params['PAYMENTRESPONSE']['UNIQUEREF'], @options)
     assert_success refund
-    assert_equal 'SUCCESS', response.message
+    assert_equal 'SUCCESS', refund.message
   end
 
   def test_partial_refund
