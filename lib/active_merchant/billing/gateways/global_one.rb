@@ -18,8 +18,8 @@ module ActiveMerchant #:nodoc:
 
       def initialize(options={})
         requires!(options, :some_credential, :another_credential)
-        self.test_url = options[:test_url] if options[:test_url]
-        self.live_url = options[:live_url] if options[:live_url]
+        # self.test_url = options[:test_url] if options[:test_url]
+        # self.live_url = options[:live_url] if options[:live_url]
         super
       end
 
@@ -41,9 +41,9 @@ module ActiveMerchant #:nodoc:
             xml.CARDHOLDERNAME payment.name
             xml.HASH purhash
             xml.CURRENCY options[:currency]
-            xml.TERMINALTYPE 1
+            xml.TERMINALTYPE 2
             xml.TRANSACTIONTYPE 7
-            xml.CVV payment.verification_value unless payment.verification_value == '123'
+            xml.CVV payment.verification_value unless test?
           end
         end
         commit(request, 'PAYMENTRESPONSE')
@@ -132,6 +132,7 @@ module ActiveMerchant #:nodoc:
 
       def commit(xml, response_type='PAYMENTRESPONSE')
         url = (test? ? test_url : live_url)
+
         headers = {
           'Content-Type' => 'application/xml;charset=UTF-8'
         }

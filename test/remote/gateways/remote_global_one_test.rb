@@ -4,8 +4,8 @@ class RemoteGlobalOneTest < Test::Unit::TestCase
   def setup
     @gateway = GlobalOneGateway.new(fixtures(:global_one))
 
-    @amount = 10
-    @credit_card = credit_card('4444333322221111', month: '08', year: '2017', brand: 'visa',verification_value: '123')
+    @amount = 1
+    @credit_card = credit_card('4444333322221111', month: '04', year: '2016', brand: 'visa',verification_value: '123')
 
     @declined_card = credit_card('4000300011112220')
     @options = {
