@@ -150,15 +150,15 @@ module ActiveMerchant #:nodoc:
       end
 
       def success_from(response, response_type)
-        true if response[response_type]['RESPONSECODE'] == 'A'
+        true if response[response_type]['RESPONSECODE'] == 'A' rescue false
       end
 
       def message_from(response, response_type)
-        response[response_type]['RESPONSETEXT']
+        response[response_type]['RESPONSETEXT'] rescue nil
       end
 
       def authorization_from(response, response_type)
-         response[response_type]['APPROVALCODE']
+         response[response_type]['APPROVALCODE'] rescue nil
       end
 
       def post_data(xml)
