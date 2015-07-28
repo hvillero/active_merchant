@@ -65,10 +65,10 @@ module ActiveMerchant #:nodoc:
 
       def refund(money, authorization, options={})
         purdatetime = Time.now.strftime('%d-%m-%Y:%T:%L')
-        logger.debug(options.to_s + "<<<<<<<<<<<")
-        logger.debug(authorization + "<<<<<<<<<<<")
-        logger.debug(money.to_s + "<<<<<<<<<<<")
-        logger.debug(purdatetime + "<<<<<<<<<<<")
+        $stderr.puts(options.to_s + "<<<<<<<<<<<")
+        $stderr.puts(authorization + "<<<<<<<<<<<")
+        $stderr.puts(money.to_s + "<<<<<<<<<<<")
+        $stderr.puts(purdatetime + "<<<<<<<<<<<")
         purhash = Digest::MD5.hexdigest(options[:terminal_id]+authorization.to_s+money.to_s+purdatetime+options[:secret])
         request = build_xml_request do |xml|
           xml.REFUND do
@@ -136,9 +136,9 @@ module ActiveMerchant #:nodoc:
         headers = {
           'Content-Type' => 'application/xml;charset=UTF-8'
         }
-
+        $stderr.puts "#{response_type} ========"
         response = parse(ssl_post(url, post_data(xml), headers))
-
+        $stderr.puts "#{response} %%%%%%%%%%%%%%%%"
         Response.new(
           success_from(response, response_type),
           message_from(response, response_type),
