@@ -139,6 +139,7 @@ module ActiveMerchant #:nodoc:
         $stderr.puts "#{response_type} ========"
         response = parse(ssl_post(url, post_data(xml), headers))
         $stderr.puts "#{response} %%%%%%%%%%%%%%%%"
+        logger.debug "#{response} %%%%%%%%%%%%%%%%"
         Response.new(
           success_from(response, response_type),
           message_from(response, response_type),
@@ -167,7 +168,7 @@ module ActiveMerchant #:nodoc:
 
       def error_code_from(response, response_type)
         unless success_from(response, response_type)
-          response['ERROR']['ERRORSTRING']
+          response['ERROR']['ERRORSTRING'] rescue nil
         end
       end
     end
