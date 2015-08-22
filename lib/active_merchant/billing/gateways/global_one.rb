@@ -19,7 +19,7 @@ module ActiveMerchant #:nodoc:
       def initialize(options={})
         requires!(options, :some_credential, :another_credential)
         # self.test_url = options[:test_url] if options[:test_url]
-        # self.live_url = options[:live_url] if options[:live_url]
+        self.live_url = options[:live_url] if options[:live_url]
         super
       end
 
