@@ -28,7 +28,7 @@ module ActiveMerchant #:nodoc:
         ccexpmonth = payment.month < 10 ? "0#{payment.month}" : "#{payment.month}"
         ccexpyear = payment.expiry_date.year.to_s.length > 2 ? payment.expiry_date.year.to_s.slice(2,3) : payment.expiry_date.year.to_s
         ccexp = "#{ccexpmonth}#{ccexpyear}"
-        $stderr.puts(" Request =====>>>>> ")
+        $stderr.puts(" Request =====>>>>> <<<<==== ")
         purhash = Digest::MD5.hexdigest(options[:terminal_id]+options[:order_id]+money.to_s+purdatetime+options[:secret])
         request = build_xml_request do |xml|
           xml.PAYMENT do
@@ -48,7 +48,7 @@ module ActiveMerchant #:nodoc:
           end
         end
         $stderr.puts(" #{request}")
-        $stderr.puts(" Request =====>>>>> ")
+        $stderr.puts(" Request =====>>>>> <<<<==== ")
         commit(request, 'PAYMENTRESPONSE')
       end
 
