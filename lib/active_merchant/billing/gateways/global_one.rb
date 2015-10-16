@@ -9,7 +9,7 @@ module ActiveMerchant #:nodoc:
 
       self.supported_countries = ['CA', 'US']
       self.default_currency = 'CAD'
-      self.supported_cardtypes = [:visa, :master, :american_express, :diners_club, :jcb]
+      self.supported_cardtypes = [:visa, :mastercard, :amex, :diners, :jcb, :discover, :laser, :maestro]
 
       self.homepage_url = 'http://globalone.me/'
       self.display_name = 'GlobalOne'
@@ -29,6 +29,7 @@ module ActiveMerchant #:nodoc:
         ccexpyear = payment.expiry_date.year.to_s.length > 2 ? payment.expiry_date.year.to_s.slice(2,3) : payment.expiry_date.year.to_s
         ccexp = "#{ccexpmonth}#{ccexpyear}"
         purhash = Digest::MD5.hexdigest(options[:terminal_id]+options[:order_id]+options[:currency]+money.to_s+purdatetime+options[:secret])
+        logger.warn " Digest::MD5.hexdigest( #{options[:terminal_id]} + #{options[:order_id]} + #{options[:currency]} + #{money.to_s} + #{purdatetime} + #{options[:secret]} ) "
         request = build_xml_request do |xml|
           xml.PAYMENT do
             xml.ORDERID options[:order_id]
